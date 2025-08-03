@@ -1,0 +1,6 @@
+{
+  "name": "AI Chatbot",
+  "description": "A mobile-friendly chatbot application powered by the Gemini API.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

@@ -56,17 +56,7 @@ const App = () => {
   
   const chatHistoryRef = useRef<HTMLDivElement>(null);
 
-  // Initialize only the AI client on load
-  useEffect(() => {
-    try {
-      const genAI = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      setAi(genAI);
-    } catch (error) {
-      console.error("Failed to initialize AI:", error);
-      // A more robust error handling can be done on the setup screen
-    }
-  }, []);
-
+  // This effect no longer initializes the AI. It just scrolls the chat.
   useEffect(() => {
     // Scroll to the bottom of the chat history when new messages are added
     if (chatHistoryRef.current) {
@@ -82,17 +72,25 @@ const App = () => {
   };
 
   const handleStartChat = () => {
-    if (!botName.trim() || !selectedPersonality || !ai) {
-      // Basic validation, could add user-facing error messages
+    if (!botName.trim() || !selectedPersonality) {
       return;
     }
-    const systemInstruction = getSystemInstruction(1, selectedPersonality, botName);
-    const newChat = ai.chats.create({
-      model: 'gemini-2.5-flash',
-      config: { systemInstruction },
-    });
-    setChat(newChat);
-    setAppState('chat');
+    try {
+      // **FIX**: Initialize AI here, only when the user clicks the button.
+      const genAI = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      setAi(genAI);
+
+      const systemInstruction = getSystemInstruction(1, selectedPersonality, botName);
+      const newChat = genAI.chats.create({
+        model: 'gemini-2.5-flash',
+        config: { systemInstruction },
+      });
+      setChat(newChat);
+      setAppState('chat');
+    } catch (error) {
+      console.error("Failed to initialize AI or start chat:", error);
+      alert("AI could not be started. Please check your API Key and network connection.");
+    }
   };
 
   const handleSendMessage = async (e: FormEvent) => {
